@@ -1,461 +1,261 @@
-# Kubernetes
+# Kubernetes in One Shot
 
-Kubernetes (often abbreviated as K8s) is an open-source container orchestration platform used to automate the deployment, scaling, and management of containerized applications. It was originally developed by Google and is now maintained by the Cloud Native Computing Foundation (CNCF).
+This README is a comprehensive guide for "Kubernetes in One Shot." It contains categorized commands from your history, structured by core Kubernetes topics. Each command is briefly described for ease of understanding and use.
 
-# Key Features of Kubernetes
+---
 
-✅ Automated Deployment & Scaling – Deploy and scale applications based on demand.
+## **Core Concepts**
 
-✅ Load Balancing – Distributes network traffic across containers for high availability.
+### Monolithic vs Microservices, Kubernetes Architecture
 
-✅ Self-Healing – Automatically restarts failed containers and replaces unhealthy nodes.
+1. `kubectl cluster-info`  
+   Display cluster information to understand the Kubernetes architecture.
 
-✅ Service Discovery – Manages internal networking for container communication.
+### Setup On Local/AWS EC2
 
-✅ Storage Orchestration – Manages storage dynamically for different workloads.
+1. `kind create cluster --name=tws-cluster --config=config.yml`  
+   Create a Kubernetes cluster using Kind with a specific configuration.
+2. `kubectl config use-context kind-tws-cluster`  
+   Switch the context to the Kind cluster.
 
-✅ Rolling Updates & Rollbacks – Updates applications without downtime.
+### Kubectl and Pods
 
-Why Use Kubernetes?
------------------------
-Manages multiple containers efficiently.
+1. `kubectl get nodes`  
+   List all nodes in the Kubernetes cluster.
+2. `kubectl run nginx --image=nginx -n nginx`  
+   Create a pod named nginx in the nginx namespace.
+3. `kubectl describe pod nginx -n nginx`  
+   Display detailed information about the nginx pod.
 
-Ensures high availability of applications.
+### Namespaces, Labels, Selectors, Annotations
 
-Works well with microservices architecture.
+1. `kubectl create namespace monitoring`  
+   Create a namespace for monitoring resources.
+2. `kubectl get namespace`  
+   List all namespaces in the cluster.
+3. `kubectl label namespace monitoring team=devops`  
+   Add a label to the monitoring namespace.
+4. `kubectl describe namespace monitoring`  
+   Display detailed information about the monitoring namespace.
 
-Supports cloud-native applications and hybrid cloud environments.
+---
 
-Orchestration:
---------------
+## **Workloads**
 
-In Kubernetes (or Container Orchestration):
-Orchestration refers to automating the deployment, scaling, networking, and management of containers. Instead of manually starting and stopping containers, Kubernetes does it for you.
+### Deployments
 
-Example:
---------
-Imagine you have a web application with:
+1. `kubectl apply -f deployment.yml`  
+   Deploy a workload defined in `deployment.yml`.
+2. `kubectl scale deployment nginx-deployment --replicas=3 -n nginx`  
+   Scale the deployment to 3 replicas.
 
-A frontend container (React or Angular)
+### StatefulSets
 
-A backend container (Node.js or Java)
+1. `kubectl apply -f statefulset.yml`  
+   Deploy a StatefulSet defined in `statefulset.yml`.
+2. `kubectl describe statefulset mysql -n database`  
+   Display detailed information about a StatefulSet.
 
-A database container (MySQL or PostgreSQL)
+### DaemonSets
 
-Kubernetes orchestrates them by:
-================================
+1. `kubectl apply -f daemonset.yml`  
+   Deploy a DaemonSet for running pods on every node.
+2. `kubectl describe daemonset fluentd -n logging`  
+   Display details about a DaemonSet.
 
-✅ Ensuring they start in the right order.
+### ReplicaSets
 
-✅ Keeping them running even if one crashes.
+1. `kubectl apply -f replicaset.yml`  
+   Deploy a ReplicaSet for managing pod replicas.
+2. `kubectl describe replicaset nginx-replicaset -n nginx`  
+   Show detailed information about the ReplicaSet.
 
-✅ Scaling them up/down based on traffic.
+### Jobs and CronJobs
 
-✅ Managing how they communicate with each other.
+1. `kubectl apply -f job.yml`  
+   Deploy a Job defined in `job.yml`.
+2. `kubectl apply -f cronjob.yml`  
+   Deploy a CronJob to schedule recurring tasks.
 
+---
 
-How Minikube Works Internally
---------------------------------
-1. When you start Minikube (minikube start)
+## **Networking**
 
-	○ It creates a virtual Kubernetes node (inside Docker, VM, or bare metal).
+### Cluster Networking
 
-	○ It starts the Kubernetes control plane (API server, scheduler, etc.).
+1. `kubectl get svc -A`  
+   List all services in the cluster.
 
-	○ It configures your kubectl to talk to this local cluster.
+### Services
 
-	2. When you deploy an app (kubectl create deployment ...)
-    
-		○ The API server inside Minikube schedules a pod to run inside its node.
+1. `kubectl apply -f service.yml`  
+   Expose an application as a service.
+2. `kubectl describe svc nginx-service -n nginx`  
+   Show details of the nginx service.
 
-		○ The pod pulls the container image (nginx, for example).
+### Ingress
 
-		○ The container starts running inside the Kubernetes cluster.
+1. `kubectl apply -f ingress.yml`  
+   Configure an Ingress resource for routing traffic.
+2. `kubectl describe ingress nginx-ingress -n nginx`  
+   Display details about an Ingress resource.
 
-	4. If Minikube is stopped (minikube stop)
-    
-		○ The cluster shuts down, and your application stops running.
+### Network Policies
 
-		○ Running kubectl get pods or kubectl get nodes will fail.
+1. `kubectl apply -f networkpolicy.yml`  
+   Apply network restrictions between pods and services.
 
-Conclusion
-----------
-✅ Minikube is the Kubernetes environment where your applications run.
+---
 
-✅ You must start Minikube before using kubectl to deploy or manage apps.
+## **Storage**
 
-✅ If Minikube stops, your Kubernetes cluster stops. You need to restart Minikube to continue using Kubernetes.
+### Persistent Volumes (PV), Persistent Volume Claims (PVC)
 
-# Kubernetes architecture
+1. `kubectl apply -f persistentVolume.yml`  
+   Create a PersistentVolume.
+2. `kubectl apply -f persistentVolumeClaim.yml`  
+   Request storage through a PersistentVolumeClaim.
 
-![image](https://github.com/user-attachments/assets/665e55a1-8d27-4f51-8642-afe7409651c3)
+### StorageClasses
 
-# Core Components
+1. `kubectl get storageclass`  
+   List all storage classes available in the cluster.
 
- A Kubernetes cluster consists of a control plane and one or more worker nodes. Here's a brief overview of the main components:
+### ConfigMaps and Secrets
 
-# Control Plane Components
+1. `kubectl create configmap app-config --from-file=config.properties`  
+   Create a ConfigMap from a file.
+2. `kubectl create secret generic db-credentials --from-literal=username=admin --from-literal=password=admin123`  
+   Create a Secret with database credentials.
 
-Manage the overall state of the cluster:
+---
 
-# kube-apiserver
+## **Scaling and Scheduling**
 
-Acts as the interface for managing the cluster and communicates with all components and exposes the Kubernetes HTTP API
+### HPA and VPA
 
-# etcd
+1. `kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=10 -n nginx`  
+   Enable Horizontal Pod Autoscaler (HPA).
+2. `kubectl apply -f vpa.yml`  
+   Deploy a Vertical Pod Autoscaler (VPA).
 
-A key-value store that stores all cluster data, including configuration and state
+### Node Affinity and Taints/Tolerations
 
-# kube-scheduler
+1. `kubectl taint nodes node1 key=value:NoSchedule`  
+   Apply a taint to a node.
+2. `kubectl apply -f node-affinity.yml`  
+   Define node affinity rules for pods.
 
-Assigns pods to Nodes based on resource availability and policies
+### Resource Quotas, Limits, Probes
 
-# kube-controller-manager
+1. `kubectl apply -f resourcequota.yml`  
+   Set resource limits and quotas in a namespace.
+2. `kubectl describe quota my-quota -n dev`  
+   Display details of a resource quota.
 
-Handles background tasks such as maintaining node health, scaling, and other cluster-wide operations
+---
 
-# cloud-controller-manager 
+## **Cluster Administration**
 
-Integrates with underlying cloud provider(s).
+### RBAC
 
-# Node Components
-Run on every node, maintaining running pods and providing the Kubernetes runtime environment:
+1. `kubectl apply -f role.yml`  
+   Define a Role for access control.
+2. `kubectl apply -f rolebinding.yml`  
+   Bind the Role to a user or service account.
 
-# kubelet
+### Custom Resource Definitions (CRDs)
 
-An agent that runs on each node in the cluster. It makes sure that containers are running in a Pod.
+1. `kubectl apply -f crd.yml`  
+   Define a Custom Resource Definition.
+2. `kubectl get crd`  
+   List all Custom Resource Definitions.
 
-The kubelet constantly checks the health and status of pods and containers running on the node.
+---
 
-If a container fails, kubelet can restart it based on its configuration.
+## **Monitoring and Logging**
 
-It gathers resource utilization data (CPU, memory, etc.) and reports to the control plane, helping in scheduling and scaling decisions.
+### Metrics Server
 
-Kubelet communicates with the container runtime (e.g., Docker, containerd) to start, stop, and manage containers.
+1. `kubectl apply -f metrics-server.yml`  
+   Deploy the metrics server.
+2. `kubectl top node`  
+   Display resource usage by nodes.
 
-# kube-proxy 
+### Prometheus and Grafana
 
-Maintains network rules on nodes to implement Services.
+1. `helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring`  
+   Install Prometheus and Grafana for monitoring.
+2. `kubectl port-forward svc/prometheus-stack-grafana 3000:80 -n monitoring --address=0.0.0.0`  
+   Access Grafana through port forwarding.
 
-# Container runtime
+---
 
-Software responsible for running containers. 
+## **Advanced Features**
 
+### Helm
 
-Deploy Nginx on Minikube without YAML file🚀
------------------------------
-Since Minikube is a single-node Kubernetes cluster, let's deploy Nginx and expose it so that we can access it from outside.
+1. `helm create my-chart`  
+   Create a Helm chart.
+2. `helm install my-app my-chart -n my-namespace --create-namespace`  
+   Deploy an application using a Helm chart.
 
-Step 1: Start Minikube
------------------------
-Make sure Minikube is running before deploying anything:
+### SideCar and Init Containers
 
-    minikube start
+1. `kubectl apply -f init-container.yml`  
+   Deploy a pod with an Init Container.
+2. `kubectl apply -f sidecar-container.yml`  
+   Deploy a pod with a SideCar Container.
 
-You can verify the status
+---
 
-    minkube status
+## **Security**
 
-Step 2: Deploy Nginx
------------------------
+1. `kubectl apply -f podsecuritypolicy.yml`  
+   Define pod security standards.
+2. `kubectl apply -f secrets-encryption.yml`  
+   Configure encryption for Kubernetes Secrets.
 
-Run the following command to create a deployment named my-nginx using the official Nginx image:
+---
 
-    Kubectl create deployment mynginx --image=nginx
+## **Cloud-Native Kubernetes**
 
-Check if the deployment is cerated
+### Managed Services (EKS, AKS, GKE)
 
-    Kubectl get deployments
+1. `eksctl create cluster --name my-cluster`  
+   Create an EKS cluster using `eksctl`.
 
-Check if the pod is running
+### Cluster Autoscaler
 
-    Kubectl get pods
+1. `kubectl apply -f cluster-autoscaler.yml`  
+   Deploy the Cluster Autoscaler.
 
-Step 3: Expose the Deployment
+---
 
-    kubectl expose deployment my-nginx --type=NodePort --port=80
+## **Debugging and Troubleshooting**
 
-Check services
+1. `kubectl logs pod-name -n namespace`  
+   View logs for a specific pod.
+2. `kubectl describe pod pod-name -n namespace`  
+   Display detailed information about a pod.
+3. `kubectl exec -it pod-name -n namespace -- bash`  
+   Access a running container.
 
-    kubectl get services
+---
 
-Step 4: Access Nginx in Minikube
+## **Projects**
 
-Minikube provides a command to open the exposed service in a browser:
+### Resources for Projects:
 
-     minikube service my-nginx
-Or 
-Get the URL manually 
+1. **Kubestarter:** [GitHub Repository](https://github.com/LondheShubham153/kubestarter)  
+   A comprehensive starter template for Kubernetes projects.
 
-    minikube service my-service --url
+2. **CI/CD Integration:** [Wanderlust Mega Project](https://github.com/LondheShubham153/Wanderlust-Mega-Project)  
+   Learn Kubernetes CI/CD with Jenkins and ArgoCD.
 
-Step 5: Cleanup (Optional)
+3. **Microservices:** [Full Stack ChatApp](https://github.com/LondheShubham153/full-stack_chatApp)  
+   Build and deploy a full-stack chat application.
 
-If you want to delete the deployment and service:
+4. **Monitoring:** [K8s Voting App](https://github.com/LondheShubham153/k8s-kind-voting-app)  
+   Implement monitoring with Prometheus and Grafana for a voting app.
 
-    kubectl delete deployment my-nginx
-    kubectl delete service my-nginx
-
-
-# Note: The Docker driver should not be used with root privileges
-
-1. Create the user
-
-        adduser yourusername
-   
-3. add the user to the docker group
-   
-
-        usermod -aG docker ubuntu
-   
-4. Switch to the new user
-
-         su - yourusername
-
-Different Objects in the Kubernets
-=========================================
-
-![image](https://github.com/user-attachments/assets/13017a6c-9c09-46bb-bc46-1c7995d8a5e0)
-
-A manifest file in Kubernetes is a YAML or JSON file that defines the desired state of a Kubernetes resource, such as Pods, Deployments, Services, ConfigMaps, etc. It is used to tell Kubernetes how to create and manage resources.
-
-YAML is a human-readable data format that is often used for configuration files, including Kubernetes manifests. Let me give you a quick introduction. 🚀
-
-📝 YAML Basics
--------------------
-YAML (Yet Another Markup Language) follows a few simple rules:
-
-1. Uses indentation (spaces, not tabs) for structure.
-	
-2. Key-value pairs are separated by :.
-	
-3. Lists use - (dash) for items.
-
-🔹 Example 1: Key-Value Pairs
-
-![image](https://github.com/user-attachments/assets/00e91c15-35fc-4fa2-a1fc-ced5d902df55)
-
-![image](https://github.com/user-attachments/assets/09e53ae7-bb72-43e4-8b26-91c03dbffbb3)
-
-![image](https://github.com/user-attachments/assets/00dbf8bf-61c6-496e-ad53-e1fe375ed367)
-
-![image](https://github.com/user-attachments/assets/3419e481-0b0f-46c4-b89a-9b26ad30b9e7)
-
-
-
-
-
-
-✅ Breakdown:
-	• apiVersion: v1 → API version
-	• kind: Pod → Type of resource
-	• metadata.name: my-pod → Pod name
-	• spec.containers → Defines container details
-	• image: nginx:latest → Container image
-	• ports.containerPort: 80 → Exposes port 80
-
-
-
-Cluster and node management
-
-kubectl get nodes                 # List all nodes in the cluster  
-kubectl get namespaces            # List all namespaces  
-kubectl config view               # View current Kubernetes config  
-kubectl cluster-info              # Display cluster info  
-kubectl describe node <node-name> # Detailed info about a specific node 
-
-
-Pods management
-========================================
-kubectl get pods                   # List all pods in the default namespace  
-kubectl get pods -A                # List all pods in all namespaces  
-kubectl get pods -n <namespace>    # List pods in a specific namespace  
-kubectl describe pod <pod-name>    # Get detailed info about a specific pod  
-kubectl logs <pod-name>            # View logs of a pod  
-kubectl exec -it <pod-name> -- /bin/sh  # Access a pod interactively  
-kubectl delete pod <pod-name>      # Delete a pod  
-
-
-Deployment management
-==================================
-kubectl create deployment my-nginx --image=nginx  # Create a deployment  
-kubectl get deployments                           # List all deployments  
-kubectl describe deployment <deployment-name>     # Detailed info about deployment  
-kubectl delete deployment <deployment-name>       # Delete a deployment  
-
-
-Minikube specific commands
-=====================================
-minikube start                 # Start Minikube  
-minikube stop                  # Stop Minikube  
-minikube delete                # Delete Minikube cluster  
-minikube status                # Check Minikube status  
-minikube dashboard             # Open Minikube dashboard  
-
-
-1. Deployment (Managing Pods)
-   -------------------------
-
-A Deployment is responsible for managing and scaling Pods (which run containers). It ensures that a specified number of replicas of an application are always running and handles updates smoothly.
-
-🔹 Why Use a Deployment?
-----------------------------
-Ensures high availability by maintaining multiple replicas.
-
-Allows rolling updates and rollbacks.
-
-Handles self-healing (if a Pod crashes, it restarts).
-
-2. Service (Exposing Applications)
-   --------------------------------
-   
-A Service exposes a set of Pods to the network. Since Pods have dynamic IPs, a Service provides a stable way to access them.
-
-🔹 Why Use a Service?
-=============================
-Provides a fixed IP/hostname for Pods.
-
-Balances traffic across multiple Pods.
-
-Supports different access types (ClusterIP, NodePort, LoadBalancer).
-
-![image](https://github.com/user-attachments/assets/e80813be-2e72-4583-b8c9-8ca8ea804304)
-
-1. Installation of minikube
-   ---------------
-
-# 1. Install dependies:
-
-       sudo apt update && sudo apt upgrade -y
-       sudo apt install -y curl wget apt-transport-https conntrack
-
-# 2. Install minikube:
-  
-       curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-       sudo install minikube-linux-amd64 /usr/local/bin/minikube
-       
-# 3. Check the version
-
-
-       minikube version
-
-
-Installation of kubectl
-=======================
-
-# 1. Update the dependies
-    
-   
-        sudo apt update && sudo apt upgrade -y
-# 2. Install kubectl
-
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# 3 Verify installation
-
-        kubectl version --client
-
-#  Kubernetes Installation Using KOPS on EC2
-
-# What is Kops?
-
-Kops (Kubernetes Operations) is a tool used to create, manage, and upgrade production-grade Kubernetes clusters in the cloud (mainly AWS).
-
-🔹 Why Use Kops?
-================
-✔ Automates Kubernetes cluster deployment
-
-✔ Manages cluster upgrades and configurations
-
-✔ Supports AWS, GCE (Google Cloud), and Bare Metal
-
-
-
-Create an EC2 instance or use your personal laptop.
-
-Dependencies required
-
-Python3
-
-AWS CLI
-
-kubectl
-
-# Install dependencies
-
-     curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-     
-    sudo apt-get update
-    sudo apt-get install -y python3-pip apt-transport-https kubectl
-    
-    pip3 install awscli --upgrade
-    export PATH="$PATH:/home/ubuntu/.local/bin/"
-    
-# Install KOPS (our hero for today)
-
-    curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 
-    4)/kops-linux-amd64
-
-    chmod +x kops-linux-amd64
-
-    sudo mv kops-linux-amd64 /usr/local/bin/kops
-    
-# Provide the below permissions to your IAM user. If you are using the admin user, the below permissions are available by default
-
-AmazonEC2FullAccess
-
-AmazonS3FullAccess
-
-IAMFullAccess
-
-AmazonVPCFullAccess
-
-# Set up AWS CLI configuration on your EC2 Instance or Laptop.
-
-    Run aws configure
-
-# Kubernetes Cluster Installation
-
-Please follow the steps carefully and read each command before executing.
-
-# Create S3 bucket for storing the KOPS objects.
-
-    aws s3api create-bucket --bucket kops-abhi-storage --region us-east-1
-
-# when you create a bucket in a non-default region (anything other than us-east-1), you must explicitly set the location constraint in the command
-
-     aws s3api create-bucket \
-    --bucket kops-abhi-storage \
-    --region ap-southeast-1 \
-    --create-bucket-configuration LocationConstraint=ap-southeast-1
-
-
-# Create the cluster
-
-      kops create cluster \
-     --name=demok8vamsiluster.k8s.local \
-     --state=s3://kops-vamsi-storage-mybucket \
-     --zones=ap-southeast-1a \
-     --node-count=1 \
-     --node-size=t2.micro \
-     --master-size=t2.micro \
-     --master-volume-size=8 \
-     --node-volume-size=8 \
-     --cloud=aws \
-     --yes
-
-# Important: Edit the configuration as there are multiple resources created which won't fall into the free tier.
-
-    kops edit cluster myfirstcluster.k8s.local
-
-# Step 12: Build the cluster
-
-    kops update cluster demok8scluster.k8s.local --yes --state=s3://kops-abhi-storage
-    
-   This will take a few minutes to create............
-
-# After a few mins, run the below command to verify the cluster installation.
-
-    kops validate cluster demok8scluster.k8s.local
