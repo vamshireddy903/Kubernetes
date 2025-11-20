@@ -25,7 +25,7 @@ Basic Architecture
 
 Clients → LoadBalancer/Ingress → Service → Pods (scaled by HPA)
 
-deployment.yaml
+deployment-svc.yaml
 ```
 apiVersion: apps/v1
 kind: Deployment
@@ -56,7 +56,18 @@ spec:
             cpu: "250m"
             memory: "256Mi"
 
-     
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  type: NodePort
+  ports:
+    - port: 80         # service port
+      targetPort: 80   # container port     
 ```
 
 hpa.yaml
