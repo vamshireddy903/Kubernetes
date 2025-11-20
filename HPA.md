@@ -89,7 +89,7 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 60
+        averageUtilization: 5
 ```
 
 This means:
