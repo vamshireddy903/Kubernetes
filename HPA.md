@@ -108,6 +108,24 @@ if it is minikube
 
     minikube addons enable metrics-server
 
+and allow insecure tls
+```
+kubectl patch deployment metrics-server -n kube-system \
+  --type='json' -p='[
+    {
+      "op": "add",
+      "path": "/spec/template/spec/containers/0/args/-",
+      "value": "--kubelet-insecure-tls"
+    },
+    {
+      "op": "add",
+      "path": "/spec/template/spec/containers/0/args/-",
+      "value": "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname"
+    }
+  ]'
+```
+
+
 Then verify:
 ```
 kubectl top pods
@@ -119,6 +137,23 @@ Check HPA Status
 kubectl get hpa
 kubectl describe hpa my-app-hpa
 ```
+**Testing**
+
+1. Create one load generator pod
+
+       kubectl run -it load-generator --image=busybox -- /bin/sh
+
+3. Login to that container and run below
+
+        while true; do wget -q -O- http://nginx-service.default.svc.cluster.local; done
+
+DNS: <service-name>.<namespacename>.svc.local.cluster 
+
+make sure your service name and namespace matches
+
+You will see CPU increase, and pods are creating
+
+<img width="1423" height="406" alt="image" src="https://github.com/user-attachments/assets/a3106dd9-33b8-4aad-9dc9-39925fc87db0" />
 
 <img width="946" height="579" alt="image" src="https://github.com/user-attachments/assets/4d2c7c5f-4307-4d6d-aa74-b3acc2558409" />
 
