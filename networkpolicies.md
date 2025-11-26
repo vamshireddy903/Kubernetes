@@ -194,3 +194,212 @@ spec:
 ```
 **One requirement:** Your Kubernetes cluster must use a network plugin (CNI) that supports these policies, like Calico or Weave.
 If you use the basic default networking, these policies are ignored.
+
+
+# If they are in different namespace:
+
+**1. Create namespace**
+```
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: backend-ns
+  labels:
+    name: backend-ns
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: db-ns
+  labels:
+    name: db-ns
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: frontend-ns
+  labels:
+    name: frontend-ns
+
+```
+**2. Frontend deployment**
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: frontend-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: nginx
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend-nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: frontend-ns
+spec:
+  selector:
+    app: nginx
+    tier: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+```
+
+**3. Deploy Backend (nginx) in backend-ns**
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: backend-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        role: backend
+    spec:
+      containers:
+      - name: backend
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: backend-ns
+spec:
+  selector:
+    app: backend
+  ports:
+  - port: 80
+    targetPort: 80
+
+```
+
+**4. Deploy MySQL DB in db-ns**
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: db-ns
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: "root123"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: db-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+        role: db
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_ROOT_PASSWORD
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: db-ns
+spec:
+  selector:
+    app: mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
+  type: ClusterIP
+
+```
+
+**5 — Deny ALL inbound traffic to DB (default deny)**
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mysql-deny-all
+  namespace: db-ns
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+
+```
+
+**6 — Allow ONLY backend pods to access DB**
+
+Because backend and DB are in different namespaces, you must use:  
+
+- namespaceSelector  
+- podSelector
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-backend-to-mysql
+  namespace: db-ns
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: backend-ns       # namespace label
+      podSelector:
+        matchLabels:
+          role: backend          # backend pod label
+    ports:
+    - protocol: TCP
+      port: 3306
+
+```
