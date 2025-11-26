@@ -403,3 +403,18 @@ spec:
       port: 3306
 
 ```
+
+# To test
+
+Install mysql client in both frontend and backed pod when login
+
+    apt update
+    apt install -y default-mysql-client
+
+Then
+
+    mysql -h mysql.db-ns.svc.cluster.local -P 3306 -u root -p --ssl=0
+    
+--ssl=0 tells the MariaDB client to not use SSL.
+
+provide password and you wont see any response when you did this from froent end conatiner and do this same in backed container and you will be able to connect mysql
