@@ -20,6 +20,19 @@
 **Simple Example**  
 If you apply this policy, only the Frontend can talk to the Database. Everyone else is blocked.
 
+
+1. Install calico
+
+        kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.2/manifests/custom-resources.yaml
+
+2. First start minikube with --cni=calico
+
+        minikube start --cni=calico
+
+3. Check calico pods status
+
+       kubectl get pods -n kube-system
+
 # EXAMPLE:
 
 **Step 1 — Deploy Frontend (nginx)**
