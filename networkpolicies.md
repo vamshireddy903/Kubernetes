@@ -20,16 +20,26 @@
 **Simple Example**  
 If you apply this policy, only the Frontend can talk to the Database. Everyone else is blocked.
 
+# STEP 1 — Install the Calico operator (CRDs + controller)
 
-1. Install calico
+You MUST run this first:
+
+     kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.2/manifests/tigera-operator.yaml
+     
+Verify CRDs installed:
+
+    kubectl get crds | grep tigera
+
+
+# STEP 2 — Apply custom-resources (Calico configuration)
 
         kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.2/manifests/custom-resources.yaml
 
-2. First start minikube with --cni=calico
+# 3. Start minikube with --cni=calico
 
         minikube start --cni=calico
 
-3. Check calico pods status
+# 4. Check calico pods status
 
        kubectl get pods -n kube-system
 
