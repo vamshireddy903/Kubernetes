@@ -1,4 +1,66 @@
-# 1. Resource request
+# 1. ResourceQuota
+
+ResourceQuota limits TOTAL resource usage in a namespace
+
+Controls:
+
+- CPU  
+- Memory  
+- Number of pods  
+- Services  
+- PVCs, etc.  
+
+<img width="689" height="543" alt="image" src="https://github.com/user-attachments/assets/07e8cda2-490f-4314-bbc4-b810b8975667" />
+
+<img width="551" height="397" alt="image" src="https://github.com/user-attachments/assets/bec990f1-869c-445e-ae4c-9733560f040b" />
+
+```
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: compute-resources
+  namespace: dev
+spec:
+  hard:
+    requests.cpu: "1"
+    requests.memory: "1Gi"
+    limits.cpu: "2"
+    limits.memory: "2Gi"
+    pods: "1"
+    services: "1"
+```
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: dev
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      role: frontend
+
+  template:
+    metadata:
+      labels:
+        role: frontend
+    spec:
+      containers:
+      - name: my-container
+        image: nginx
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "1Gi"
+          limits:
+            cpu: "500m"
+            memory: "2Gi"
+        ports:
+        - containerPort: 80
+```
+
+# 2. Resource request
 
 - This is the minimum guaranteed resource a container will get.  
 - If a container requests 100m CPU → K8s guarantees it will get that much CPU.
