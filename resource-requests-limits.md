@@ -48,7 +48,7 @@ spec:
     spec:
       containers:
       - name: my-container
-        image: nginx
+        image: oplinux/stress
         resources:
           requests:
             cpu: "250m"
