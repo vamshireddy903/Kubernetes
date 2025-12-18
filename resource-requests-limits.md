@@ -131,3 +131,79 @@ spec:
 ```
 
 <img width="1334" height="356" alt="image" src="https://github.com/user-attachments/assets/b2e0b4b1-2755-4358-a555-02bfbdf21099" />
+
+
+🔹 What this container is doing
+
+You are running the image:
+
+polinux/stress
+
+
+This image contains the Linux stress tool, used to artificially consume CPU, memory, or IO.
+
+🔹 Understanding this part
+```
+command: ["stress"]
+args: ["--vm", "1", "--vm-bytes", "210M", "--vm-hang", "1"]
+```
+
+This translates to the Linux command:
+
+    stress --vm 1 --vm-bytes 210M --vm-hang 1
+
+**🔹 Meaning of each argument**
+
+1️⃣ --vm 1
+
+- Creates 1 memory worker  
+- Each worker continuously allocates memory
+
+2️⃣ --vm-bytes 210M
+
+Each VM worker tries to allocate 210 MB RAM
+
+👉 Total memory used:
+
+1 × 210 MB = 210 MB
+
+3️⃣ --vm-hang 1
+
+After allocating memory, the process sleeps (hangs) instead of freeing memory
+
+Keeps memory occupied
+
+🔹 Why this Pod will likely FAIL
+
+Your resource limits:
+```
+limits:
+  memory: "200Mi"
+```
+
+But stress wants:
+
+210Mi > 200Mi
+
+
+👉 Result:
+
+Container exceeds memory limit
+
+- OOMKilled  
+- Pod restarts  
+
+# How to increase CPU usage 
+
+✅ Use CPU stress workers
+
+Replace your args with CPU stress:
+```
+command: ["stress"]
+args: ["--cpu", "2"]
+```
+
+This means:
+
+- Start 2 CPU workers  
+- Each worker consumes 100% of 1 CPU core
