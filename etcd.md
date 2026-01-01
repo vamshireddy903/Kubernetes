@@ -150,3 +150,12 @@ example:
 For more info: https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/
 
 
+# Restore backup
+
+  ```
+ ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+--cacert=/var/lib/minikube/certs/etcd/ca.crt --cert=/var/l
+ib/minikube/certs/etcd/server.crt --key=/var/lib/minikube/ce
+rts/etcd/server.key \
+snapshot restore /opt/backup.db --data-dir=/var/lib/minikube/etcd-restore-from-backup
+``
