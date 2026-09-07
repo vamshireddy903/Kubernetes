@@ -82,6 +82,13 @@ spec:
 
 ---
 ```
+Inside frontend and backend install
+
+    apt-get install -y default-mysql-client
+
+
+  to connect db
+  
 # 🏷️ Step 2 — Deploy Backend (nginx)
 
 ```
