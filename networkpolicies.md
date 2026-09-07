@@ -88,6 +88,8 @@ Inside frontend and backend install
 
 
   to connect db
+
+    mysql -h mysql-service -P 3306 -u root -p --skip-ssl
   
 # 🏷️ Step 2 — Deploy Backend (nginx)
 
